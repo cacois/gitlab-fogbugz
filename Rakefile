@@ -3,12 +3,12 @@ require "rubygems"
 require "rake/testtask"
 require "rake/gempackagetask"
 
-GEM = "github-fogbugz"
+GEM = "gitlab-fogbugz"
 VERSION = "0.0.2"
 AUTHOR = ["John Reilly", "François Beausoleil"]
 EMAIL = ["jr@trms.com", "francois@teksol.info"]
 HOMEPAGE = "http://github.com/johnreilly/github-fogbugz"
-SUMMARY = "A gem that acts as the gateway between GitHub and Fogbugz."
+SUMMARY = "A gem that acts as the gateway between Gitlab and Fogbugz."
 
 spec = Gem::Specification.new do |s|
   s.name = GEM
@@ -21,7 +21,7 @@ spec = Gem::Specification.new do |s|
   s.authors = AUTHOR
   s.email = EMAIL
   s.homepage = HOMEPAGE
-  s.executables = ["github-fogbugz-server", "github-fogbugz"]
+  s.executables = ["gitlab-fogbugz-server", "gitlab-fogbugz"]
   
   # Uncomment this to add a dependency
   s.add_dependency "json", "~> 1.1.2"

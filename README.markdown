@@ -1,9 +1,9 @@
-GitHub + Fogbugz
+Gitlab + Fogbugz
 ===
 
 This is a simple sinatra application that has three responsibilities:
 
-* Receive and parse the JSON commit info from GitHub's post-receive hooks and send it to FogBugz
+* Receive and parse the JSON commit info from Gitlab's post-receive hooks and send it to FogBugz
 * Act as a "gateway" for viewing multiple SCM repositories in FogBugz
 * Edit case history per the commit message's instructions.
 
@@ -17,7 +17,7 @@ Gems:
 
 Optional:
 
-* [Ragel](http://research.cs.queensu.ca/~thurston/ragel/): for generating the FogBugz message parser. If you install github-fogbugz as a gem, you will *not* need to generate the message parser.
+* [Ragel](http://research.cs.queensu.ca/~thurston/ragel/): for generating the FogBugz message parser. If you install gitlab-fogbugz as a gem, you will *not* need to generate the message parser.
 * [GraphViz](http://www.graphviz.org): for generating a graph of the Ragel generated state machine): 
 
 To Install and Run:
@@ -27,28 +27,28 @@ To Install and Run:
     $ sudo gem install sinatra json
     
     # You need Ragel locally to make this next command work.
-    # If you installed github-fogbugz as a gem, you do NOT need to execute this step.
+    # If you installed gitlab-fogbugz as a gem, you do NOT need to execute this step.
     $ rake ragel:compile 
     
-    # Copies the config file examples to ~/.github-fogbugz/config.yml
-    $ github-fogbugz
+    # Copies the config file examples to ~/.gitlab-fogbugz/config.yml
+    $ gitlab-fogbugz
     
     ...edit config.yml (see "configuration" section below)...
     
-    $ github-fogbugz-server [-p port] [-e production]
+    $ gitlab-fogbugz-server [-p port] [-e production]
 
     # Send your developers here so they can authenticate with FogBugz.
     # Each developer must login here before their commit messages
     # will be sent to FogBugz.
-    $ http://<github-fogbugz-address>:<port>/login
+    $ http://<gitlab-fogbugz-address>:<port>/login
     
 Configuration
 ---
 
-### GitHub repositories:
-Set up your repositories on GitHub to send a [post-receive hook](http://github.com/guides/post-receive-hooks) to the root url of this sinatra app. Be sure to include the port, if other than 80.
+### Gitlab repositories:
+Set up your repositories on Gitlab to send a [post-receive hook](http://github.com/guides/post-receive-hooks) to the root url of this sinatra app. Be sure to include the port, if other than 80.
 
-### github-fogbugz-server (this app):
+### gitlab-fogbugz-server (this app):
 The configuration file holds several variables that you'll need to edit.
 
 * **fb\_submit\_url**: The url to the cvsSubmit.[php|asp] file on your FogBugz server.
@@ -61,7 +61,7 @@ The configuration file holds several variables that you'll need to edit.
 Each repo name must match the the values that are in the *sRepo* field in FogBug's *CVS* table.
 
 ### Authenticating:
-Each developer must login to FogBugz through this app.  Visit **/login** and follow the instructions.  The act of logging in will create a tokens.yml file in the app's config directory, chmod'ed 0600.  **Note**: github-fogbugz-server expects the developer's E-Mail addresses to match in both GitHub and FogBugz.
+Each developer must login to FogBugz through this app.  Visit **/login** and follow the instructions.  The act of logging in will create a tokens.yml file in the app's config directory, chmod'ed 0600.  **Note**: gitlab-fogbugz-server expects the developer's E-Mail addresses to match in both Gitlab and FogBugz.
 
 ### FogBugz:  
 You'll need to do some configuration in FogBugz as well.  As the FogBugz admin, edit your site settings, and in the source control urls for logs and diffs, enter:
@@ -77,7 +77,7 @@ The only difference between the two is the "type" parameter.
 
 Other Notes
 ---
-When parsing out the file names from github commits, I've tacked on the branch that the file lives on.  So in FogBugz you'll see files like "master/myfile.rb".  This is simply because my team does the "release on a branch" thing (aka [Release Line](http://www.scmpatterns.com/book/pattern-summary.html)), and I like to see which branch certain bugs were fixed on.  Feel free to modify this behavior.
+When parsing out the file names from gitlab commits, I've tacked on the branch that the file lives on.  So in FogBugz you'll see files like "master/myfile.rb".  This is simply because my team does the "release on a branch" thing (aka [Release Line](http://www.scmpatterns.com/book/pattern-summary.html)), and I like to see which branch certain bugs were fixed on.  Feel free to modify this behavior.
 
 Caveats
 ---
@@ -91,8 +91,8 @@ Thanks
 ---
 Major thanks to [François Beausoleil](http://github.com/francois) for turning this project into something much greater than I had dreamed of.
 
-Inspired by [github-campfire](http://github.com/jnewland/github-campfire) by [jnewland](http://github.com/jnewland) and
-[github-twitter](http://github.com/jnunemaker/github-twitter) by [jnunemaker](http://github.com/jnunemaker). 
+Inspired by [gitlab-campfire](http://github.com/jnewland/gitlab-campfire) by [jnewland](http://github.com/jnewland) and
+[gitlab-twitter](http://github.com/jnunemaker/gitlab-twitter) by [jnunemaker](http://github.com/jnunemaker). 
 
 License
 ---

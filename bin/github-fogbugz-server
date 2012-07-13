@@ -11,9 +11,9 @@ require 'fogbugz_service'
 require 'fogbugz_listener'
 require 'message_parser'
 
-# Returns the path to the configuration file.  It defaults to ~/.github-fogbugz/config.yml
+# Returns the path to the configuration file.  It defaults to ~/.gitlab-fogbugz/config.yml
 def config_path
-  @config_path ||= File.expand_path(ENV["CONFIG_PATH"] || "~/.github-fogbugz/config.yml")
+  @config_path ||= File.expand_path(ENV["CONFIG_PATH"] || "~/.gitlab-fogbugz/config.yml")
 end
 
 # Returns a Hash of configuration options read from +config_path+.
@@ -27,9 +27,9 @@ def write_config
   File.open(config_path, "w") {|io| io.write config.to_yaml}
 end
 
-# Returns the path to the tokens file.  It defaults to ~/.github-fogbugz/tokens.yml
+# Returns the path to the tokens file.  It defaults to ~/.gitlab-fogbugz/tokens.yml
 def tokens_path
-  @tokens_path ||= File.expand_path(ENV["TOKENS_PATH"] || "~/.github-fogbugz/tokens.yml")
+  @tokens_path ||= File.expand_path(ENV["TOKENS_PATH"] || "~/.gitlab-fogbugz/tokens.yml")
 end
 
 # Returns a Hash of tokens read from +tokens_path+.
@@ -55,7 +55,7 @@ end
 # to resolve/close issues automatically, you need to have
 # each of your developers to visit this page:
 #
-# /login          This is a simple form to tell github-fogbugz
+# /login          This is a simple form to tell gitlab-fogbugz
 #                 about all of your developers.  Each dev must
 #                 authenticate once with this app, then the token
 #                 is kept on the filesystem.
@@ -207,7 +207,7 @@ class GithubFogbugz
   def process_commit(sha1, commit, repo, branch, before, fb_submit_url, curl_path)
     
     # from each commit in the payload, we need to extract:
-    # - name of repo, renamed as "github-<repo>"
+    # - name of repo, renamed as "gitlab-<repo>"
     # - name of file, including branch. e.g.: "4.7/Builds/Cablecast.fbp4"
     # - sha1 of commit (R2)
     # - sha1 of before (R1)
@@ -230,11 +230,11 @@ class GithubFogbugz
     end
     
     # for each found bugzid, submit the files to fogbugz.
-    # this will set the sRepo to "github-<repo>", which will be used above
+    # this will set the sRepo to "gitlab-<repo>", which will be used above
     # when fogbugz asks for the scm viewer url.
     bug_list.each do |fb_bugzid|
       files.each do |f|
-        fb_repo = CGI.escape("github-#{repo}")
+        fb_repo = CGI.escape("gitlab-#{repo}")
         fb_r1 = CGI.escape("#{before}")
         fb_r2 = CGI.escape("#{sha1}")
         fb_file = CGI.escape("#{branch}/#{f}")

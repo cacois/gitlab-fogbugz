@@ -8,5 +8,5 @@ req.set_form_data(:type => "diff", :repo => "cvs", :file => "filename.rb", :r1 =
 res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
 
 
-req.set_form_data(:type => "log", :repo => "github-fbtest", :file => "4.7/filename.rb", :r1 => "123", :r2 => "124")
+req.set_form_data(:type => "log", :repo => "gitlab-fbtest", :file => "4.7/filename.rb", :r1 => "123", :r2 => "124")
 res = Net::HTTP.new(url.host, url.port).start {|http| http.request(req) }
