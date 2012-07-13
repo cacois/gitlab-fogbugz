@@ -4,11 +4,11 @@ require "rake/testtask"
 require "rake/gempackagetask"
 
 GEM = "gitlab-fogbugz"
-VERSION = "0.0.2"
-AUTHOR = ["John Reilly", "François Beausoleil"]
-EMAIL = ["jr@trms.com", "francois@teksol.info"]
-HOMEPAGE = "http://github.com/johnreilly/github-fogbugz"
-SUMMARY = "A gem that acts as the gateway between Gitlab and Fogbugz."
+VERSION = "0.0.1"
+AUTHOR = ["John Reilly", "François Beausoleil", "Markus Fischer"]
+EMAIL = ["jr@trms.com", "francois@teksol.info", "markus@fischer.name"]
+HOMEPAGE = "http://github.com/mfn/gitlab-fogbugz"
+SUMMARY = "Fork of github-fogbugz, a gem that acts as the gateway between GitLab and Fogbugz."
 
 spec = Gem::Specification.new do |s|
   s.name = GEM
