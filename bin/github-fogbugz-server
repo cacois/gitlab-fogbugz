@@ -45,7 +45,7 @@ def write_tokens
 end
 
 # This sinatra app has a couple of endpoints:
-#  /              This is where GitHub will send 
+#  /              This is where GitLab will send 
 #                 its post-receive hooks
 #
 #  /repo_url      This is where FogBugz will send 
@@ -61,10 +61,10 @@ end
 #                 is kept on the filesystem.
 
 ##
-# GitHub should send its post-receive hook here.
+# GitLab should send its post-receive hook here.
 post '/' do
-  puts params.to_json
-  GithubFogbugz.new(params[:payload])
+  request.body.rewind
+  GitlabFogbugz.new(request.body.read)
 end
 
 AUTH_FORM = lambda {|fb_url, params|
@@ -116,7 +116,7 @@ get "/authenticated" do
       <p>Implements #1234, references #2345.  Closes #1234.</p>
     </blockquote>
     <p>This would automatically add the commit message to cases #1234 <em>and</em> #2345.  The commit message will be appended as an event to the case.  In addition, case #1234 will be closed.</p>
-    <p>GithubFogbugz recognizes the following keywords:  closes, implements, references and fixes (and singular versions of the same keywords).  NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
+    <p>GitlabFogbugz recognizes the following keywords:  closes, implements, references and fixes (and singular versions of the same keywords).  NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
     <p>Back to <a href="/tokens">Authenticated users</a></p>
   HTML
 end
@@ -176,7 +176,7 @@ end
 
 ##
 # This class does all of the json parsing and submits a push's commits to fogbugz
-class GithubFogbugz
+class GitlabFogbugz
   
   def initialize(payload)
     payload = JSON.parse(payload)
@@ -186,7 +186,7 @@ class GithubFogbugz
     branch = payload["ref"].split('/').last
     
     payload["commits"].each do |c|
-      process_commit(c.first, c.last, repo, branch, payload['before'], config['fb_submit_url'], config['curl'])
+      process_commit(c["id"], c, repo, branch, payload['before'], config['fb_submit_url'], config['curl'])
     end
     
     rescue
