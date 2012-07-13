@@ -220,6 +220,7 @@ class GitlabFogbugz
     submit_to_fogbugz(sha1, commit, token, curl_path) if token
 
     files = commit["removed"] | commit["added"] | commit["modified"]
+    files = [] if !files
     
     # look for a bug id in each line of the commit message
     bug_list = []
