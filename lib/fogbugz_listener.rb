@@ -40,20 +40,20 @@ class FogbugzListener
   end
 
   def update_fogbugz(service)
-    message = options[:message].dup
     references = @actions.delete(:reference)
-    message << "\n"
+
+    message_header = ""
+    message_header << "Commit: #{options[:sha1]}\n"
+    message_header << "#{options[:commit_url]}\n" if options[:commit_url]
+
+    message = message_header + "\n" + options[:message]
 
     if @actions.empty? then
-      message << "\nCommit: #{options[:sha1]}"
-      message << "\n#{options[:commit_url]}" if options[:commit_url]
       references.each do |bugid|
         service.append_message(:case => bugid, :message => message)
       end if references
     else
-      message << "\nReferences " << references.map {|bugid| "case #{bugid}"}.join(", ") if references && !references.empty?
-      message << "\nCommit: #{options[:sha1]}"
-      message << "\n#{options[:commit_url]}" if options[:commit_url]
+      message << "\n\nReferences " << references.map {|bugid| "case #{bugid}"}.join(", ") if references && !references.empty?
       @actions.each_pair do |action, bugids|
         bugids.each do |bugid|
           service.send(action, :case => bugid, :message => message)

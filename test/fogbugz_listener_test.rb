@@ -10,7 +10,7 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener = FogbugzListener.new(:sha1 => "a1231", :message => "The full commit message, fixes #1111.")
     @listener.fix
     @listener.case("1111")
-    @service.expects(:fix).with(:case => "1111", :message => "The full commit message, fixes #1111.\n\nCommit: a1231")
+    @service.expects(:fix).with(:case => "1111", :message => "Commit: a1231\n\nThe full commit message, fixes #1111.")
     @listener.update_fogbugz(@service)
   end
 
@@ -18,7 +18,7 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener = FogbugzListener.new(:sha1 => "c829a13", :message => "Reopens #3211")
     @listener.reopen
     @listener.case("3211")
-    @service.expects(:reopen).with(:case => "3211", :message => "Reopens #3211\n\nCommit: c829a13")
+    @service.expects(:reopen).with(:case => "3211", :message => "Commit: c829a13\n\nReopens #3211")
     @listener.update_fogbugz(@service)
   end
 
@@ -27,8 +27,8 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener.implement
     @listener.case("3322")
     @listener.case("7219")
-    @service.expects(:implement).with(:case => "3322", :message => "Implements #3322 and #7219\n\nCommit: c829a13")
-    @service.expects(:implement).with(:case => "7219", :message => "Implements #3322 and #7219\n\nCommit: c829a13")
+    @service.expects(:implement).with(:case => "3322", :message => "Commit: c829a13\n\nImplements #3322 and #7219")
+    @service.expects(:implement).with(:case => "7219", :message => "Commit: c829a13\n\nImplements #3322 and #7219")
     @listener.update_fogbugz(@service)
   end
 
@@ -36,7 +36,7 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener = FogbugzListener.new(:sha1 => "c829a13", :message => "Reopens #3211", :commit_url => "http://github.com/johnreilly/github-fogbuz")
     @listener.reopen
     @listener.case("3211")
-    @service.expects(:reopen).with(:case => "3211", :message => "Reopens #3211\n\nCommit: c829a13\nhttp://github.com/johnreilly/github-fogbuz")
+    @service.expects(:reopen).with(:case => "3211", :message => "Commit: c829a13\nhttp://github.com/johnreilly/github-fogbuz\n\nReopens #3211")
     @listener.update_fogbugz(@service)
   end
 
@@ -48,7 +48,7 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener.case("9219")
     @listener.case("9220")
     @service.expects(:implement).with(:case => "1112",
-        :message => "Implements #1112, references #9219, #9220\n\nReferences case 9219, case 9220\nCommit: c829a13\nhttp://github.com/johnreilly/github-fogbuz")
+        :message => "Commit: c829a13\nhttp://github.com/johnreilly/github-fogbuz\n\nImplements #1112, references #9219, #9220\n\nReferences case 9219, case 9220")
     @listener.update_fogbugz(@service)
   end
 
@@ -56,7 +56,7 @@ class FogbugzListenerTest < Test::Unit::TestCase
     @listener = FogbugzListener.new(:sha1 => "c829a13", :message => "References #3211", :commit_url => "http://github.com/johnreilly/github-fogbuz/commit/c829a13")
     @listener.reference
     @listener.case("3211")
-    @service.expects(:append_message).with(:case => "3211", :message => "References #3211\n\nCommit: c829a13\nhttp://github.com/johnreilly/github-fogbuz/commit/c829a13")
+    @service.expects(:append_message).with(:case => "3211", :message => "Commit: c829a13\nhttp://github.com/johnreilly/github-fogbuz/commit/c829a13\n\nReferences #3211")
     @listener.update_fogbugz(@service)
   end
 end
