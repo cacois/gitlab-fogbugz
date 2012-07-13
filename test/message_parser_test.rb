@@ -48,4 +48,33 @@ class MessageParserTest < Test::Unit::TestCase
     @listener.expects(:case).with("1334").once
     MessageParser.parse("Completes #1334", @listener)
   end
+
+  def test_parse_bugzid_1
+    @listener.expects(:reference)
+    @listener.expects(:case).with("1234").once
+    MessageParser.parse("BugzID: #1234", @listener)
+  end
+
+  def test_parse_bugzid_2
+    @listener.expects(:reference)
+    @listener.expects(:case).with("1234").once
+    MessageParser.parse("BugzID #1234", @listener)
+  end
+
+  def test_parse_bugzid_3
+    @listener.expects(:reference)
+    @listener.expects(:case).with("1234").once
+    MessageParser.parse("bugid: #1234", @listener)
+  end
+
+  def test_parse_bugzid_4
+    @listener.expects(:reference)
+    @listener.expects(:case).with("1234").once
+    MessageParser.parse("bugsid #1234", @listener)
+  end
+  def test_parse_refs
+    @listener.expects(:reference)
+    @listener.expects(:case).with("1234").once
+    MessageParser.parse("refs #1234", @listener)
+  end
 end
