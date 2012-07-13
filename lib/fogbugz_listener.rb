@@ -27,8 +27,16 @@ class FogbugzListener
     @state = :reference
   end
 
+  def complete
+    @state = :complete
+  end
+
   def case(bugid)
     @actions[@state] << bugid
+  end
+
+  def resolve
+    @state = :resolve
   end
 
   def update_fogbugz(service)

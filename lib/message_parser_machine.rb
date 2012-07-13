@@ -7,17 +7,21 @@ class MessageParser
     closes = (/close/i ([sS])?);
     completes = (/complete/i ([sS])?);
     references = (/reference/i ([sS])?);
+    refs = (/refs/i);
+    bugzid = (/bug/i ([zZsS])? /id/i ([:])?);
     fixes = ((/re/i)? /fix/i (/ed/i | (/es/i))?);
     reopens = (/reopen/i ([sS])?);
     implements = ((/re/i)? /implement/i ([sS])?);
-    keywords = (closes | completes | references | fixes | reopens | implements);
+    resolves = ((/re/i)? /solve/i ([sS])?);
+    keywords = (closes | completes | references | refs | fixes | reopens | implements | bugzid | resolves);
     main := |*
               (closes) => { listener.close };
               (completes) => { listener.complete };
-              (references) => { listener.reference };
+              (references|bugzid|refs) => { listener.reference };
               (fixes) => { listener.fix };
               (reopens) => { listener.reopen };
               (implements) => { listener.implement };
+              (resolves) => { listener.resolve };
               (bugid) => { listener.case(data[ts+1...te].pack("C*")) };
               (any - (bugid | keywords));
             *|;

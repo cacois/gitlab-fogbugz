@@ -116,7 +116,19 @@ get "/authenticated" do
       <p>Implements #1234, references #2345.  Closes #1234.</p>
     </blockquote>
     <p>This would automatically add the commit message to cases #1234 <em>and</em> #2345.  The commit message will be appended as an event to the case.  In addition, case #1234 will be closed.</p>
-    <p>GitlabFogbugz recognizes the following keywords:  closes, implements, references and fixes (and singular versions of the same keywords).  NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
+    <p>You can also mention multiple cases with one keyword, e.g. <tt>Implements #1234 and #5123</tt>.</p>
+    <p>GitlabFogbugz recognizes the following keywords (also singular versions of the same keywords):</p>
+    <ul>
+        <li><tt>bugzid:</tt><br>For "compatibility" with the subversion wrapper provided by Fogcreek; however you still need to prefix the case number with <tt>#</tt>. Works like <tt>references</tt>.</li>
+        <li><tt>closes</tt></li>
+        <li><tt>completes</tt></li>
+        <li><tt>fixes</tt></li>
+        <li><tt>implements</tt></li>
+        <li><tt>reopens</tt></li>
+        <li><tt>references</tt> or <tt>refs</tt><br>Does not change the state of the case, just adds the commit message to this case.</li>
+        <li><tt>resolves</tt><br>Resolves is different then <tt>closes</tt>, <tt>completes</tt>, <tt>fixes</tt> and <tt>implements</tt>: it does not explicitly sets the FogBugz case status, thus changes the case to it's categories default status for resolved cases: Bug -&gt; "fixed", Feature -&gt; "Implemented", Inquirt -&gt; "Responded" and Schedule Item -&gt; "Completed"</li>
+    </ul>
+    <p>NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
     <p>Back to <a href="/tokens">Authenticated users</a></p>
   HTML
 end

@@ -61,6 +61,20 @@ class FogbugzService
     tell_fogbugz(:edit, data)
   end
 
+  def invalid(data)
+    # TODO: This silently ignores any bug id reference (#1234) without a
+    # predicate; however I currently don't consider it a good idea to treat this
+    # transparently as :reference
+  end
+
+  def reopen(data)
+    tell_fogbugz(:reopen, data)
+  end
+
+  def resolve(data)
+    tell_fogbugz(:resolve, data)
+  end
+
   protected
   # Returns an REXML::Document to the specified URI
   def get(uri, params=nil)
