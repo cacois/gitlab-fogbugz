@@ -1,9 +1,9 @@
-Gitlab + Fogbugz
+GitLab + Fogbugz
 ===
 
 This is a simple sinatra application that has three responsibilities:
 
-* Receive and parse the JSON commit info from Gitlab's post-receive hooks and send it to FogBugz
+* Receive and parse the JSON commit info from GitLab's post-receive hooks and send it to FogBugz
 * Act as a "gateway" for viewing multiple SCM repositories in FogBugz
 * Edit case history per the commit message's instructions.
 
@@ -45,8 +45,8 @@ To Install and Run:
 Configuration
 ---
 
-### Gitlab repositories:
-Set up your repositories on Gitlab to send a [post-receive hook](http://github.com/guides/post-receive-hooks) to the root url of this sinatra app. Be sure to include the port, if other than 80.
+### GitLab repositories:
+Set up your repositories on GitLab to send a post-receive hook to the root url of this sinatra app. Be sure to include the port, if other than 80.
 
 ### gitlab-fogbugz-server (this app):
 The configuration file holds several variables that you'll need to edit.
@@ -61,7 +61,7 @@ The configuration file holds several variables that you'll need to edit.
 Each repo name must match the the values that are in the *sRepo* field in FogBug's *CVS* table.
 
 ### Authenticating:
-Each developer must login to FogBugz through this app.  Visit **/login** and follow the instructions.  The act of logging in will create a tokens.yml file in the app's config directory, chmod'ed 0600.  **Note**: gitlab-fogbugz-server expects the developer's E-Mail addresses to match in both Gitlab and FogBugz.
+Each developer must login to FogBugz through this app.  Visit **/login** and follow the instructions.  The act of logging in will create a tokens.yml file in the app's config directory, chmod'ed 0600.  **Note**: gitlab-fogbugz-server expects the developer's E-Mail addresses to match in both GitLab and FogBugz.
 
 ### FogBugz:  
 You'll need to do some configuration in FogBugz as well.  As the FogBugz admin, edit your site settings, and in the source control urls for logs and diffs, enter:
@@ -77,10 +77,14 @@ The only difference between the two is the "type" parameter.
 
 Other Notes
 ---
+(NOTE: This section currently does not apply: as of gitlab 2.6 the post-receive hook does not receive the fle names, [see the request at github](https://github.com/gitlabhq/gitlabhq/issues/747) ).
+
 When parsing out the file names from gitlab commits, I've tacked on the branch that the file lives on.  So in FogBugz you'll see files like "master/myfile.rb".  This is simply because my team does the "release on a branch" thing (aka [Release Line](http://www.scmpatterns.com/book/pattern-summary.html)), and I like to see which branch certain bugs were fixed on.  Feel free to modify this behavior.
 
 Caveats
 ---
+(NOTE: This section currently does not apply: as of gitlab 2.6 the post-receive hook does not receive the fle names, [see the request at github](https://github.com/gitlabhq/gitlabhq/issues/747) ).
+
 It's fairly obvious that FogBugz was written for a more traditional CVS/SVN SCM system in mind. As such, the commit list display doesn't really jive with git:
 
 ![Messy Commits List in FogBugz](http://img.skitch.com/20080424-kb6kujbfd224436pqgnhgj33sk.jpg)
@@ -89,10 +93,12 @@ This is in FogBugz 6.1.23.  I've got a [thread started](http://support.fogcreek.
 
 Thanks
 ---
+All praises go to John Reilly et al for their work on [github-fogbugz](https://github.com/johnreilly/github-fogbugz), I simply renamed and adjusted a few things to get it working with GitLab.
+
 Major thanks to [François Beausoleil](http://github.com/francois) for turning this project into something much greater than I had dreamed of.
 
-Inspired by [gitlab-campfire](http://github.com/jnewland/gitlab-campfire) by [jnewland](http://github.com/jnewland) and
-[gitlab-twitter](http://github.com/jnunemaker/gitlab-twitter) by [jnunemaker](http://github.com/jnunemaker). 
+Inspired by [github-campfire](http://github.com/jnewland/github-campfire) by [jnewland](http://github.com/jnewland) and
+[github-twitter](http://github.com/jnunemaker/github-twitter) by [jnunemaker](http://github.com/jnunemaker). 
 
 License
 ---
