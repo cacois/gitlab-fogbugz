@@ -15,9 +15,13 @@ else
   exit 1
 end
 
-puts "Writing configuration file to #{config_path}/config.yml"
 FileUtils.mkpath(config_path)
-FileUtils.cp(File.dirname(__FILE__) + "/../config/config.yml.example", config_path + "/config.yml")
-
-puts "You now have to edit the configuration file and set the right values."
+filename = config_path + "/config.yml"
+if File.exists? filename
+  puts "You already have an existing configuration in '#{filename}', not overwriting."
+else
+  puts "Writing configuration file to #{config_path}/config.yml"
+  FileUtils.cp(File.dirname(__FILE__) + "/../config/config.yml.example", config_path + "/config.yml")
+  puts "You now have to edit the configuration file and set the right values."
+end
 puts "Documentation is available in the config file itself."
