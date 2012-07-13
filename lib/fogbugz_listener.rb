@@ -41,7 +41,7 @@ class FogbugzListener
       message << "\n#{options[:commit_url]}" if options[:commit_url]
       references.each do |bugid|
         service.append_message(:case => bugid, :message => message)
-      end
+      end if references
     else
       message << "\nReferences " << references.map {|bugid| "case #{bugid}"}.join(", ") if references && !references.empty?
       message << "\nCommit: #{options[:sha1]}"
