@@ -4,13 +4,12 @@
 # Setup your gitlab-fogbugz integration through this configuration file.
 #
 # The URL to the cvsSubmit.[php|asp] file on your server.  This is to add the list of changed files to the cases.
-fb_submit_url:  "http://fogbugz.server.com/cvsSubmit.php"
+# Note: for gitlab-fogbugz this is currently not used; gitlab as of 2.6 lacks
+# the support of file names as part of their post hook
+# fb_submit_url:  "http://fogbugz.server.com/cvsSubmit.php"
 
 # The URL to the root of your FogBugz installation.
 fb_main_url:  "http://fogbugz.server.com/"
-
-# The path to the Curl binary.  Curl is used because of issues with SSL in Ruby's libraries.
-curl: "/usr/bin/curl"
 
 # A list of repositories that are known to your FogBugz installation.
 # Each repository is identified by a name and has 2 values: log_url and diff_url.

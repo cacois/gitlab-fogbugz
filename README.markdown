@@ -51,12 +51,11 @@ Set up your repositories on GitLab to send a post-receive hook to the root url o
 ### gitlab-fogbugz-server (this app):
 The configuration file holds several variables that you'll need to edit.
 
-* **fb\_submit\_url**: The url to the cvsSubmit.[php|asp] file on your FogBugz server.
 * **fb\_main\_url**: The url to your FogBugz's installation.
-* **curl**: The path to the curl binary. Curl is used to submit the commit to FogBugz.
 * **repos**: A list of the SCM repositories that you're using.  Each repo has two urls:
   * *log_url*: The url to the commit log for a specific file 
   * *diff_url*: The url to the specific commit or revision.
+* (Currently unsupported: **fb\_submit\_url**: The url to the cvsSubmit.[php|asp] file on your FogBugz server.)
 
 Each repo name must match the the values that are in the *sRepo* field in FogBug's *CVS* table.
 

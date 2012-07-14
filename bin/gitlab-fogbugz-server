@@ -5,6 +5,7 @@ require 'sinatra'
 require 'yaml'
 require 'cgi'
 require 'fileutils'
+require 'fogbugz'
 
 $: << File.dirname(__FILE__) + "/../lib"
 require 'fogbugz_service'
@@ -91,15 +92,11 @@ end
 
 post "/authenticate" do
   begin
-    service = FogbugzService.new(config["fb_main_url"], config["curl"])
-    service.connect do
-      token = service.logon(params["email"], params["password"])
-      tokens[params["email"]] = token
-    end
-
+    api = Fogbugz::Interface.new(:email => params["email"], :password => params["password"], :uri => config["fb_main_url"])
+    tokens[ params["email"] ] = api.authenticate
     write_tokens
     redirect "/authenticated"
-  rescue FogbugzService::BadCredentials
+  rescue Fogbugz::AuthenticationException
     "<p>Failed authentication: <strong>#{$!.message}</strong></p>" + AUTH_FORM.call(config['fb_main_url'], params)
   end
 end
@@ -198,7 +195,7 @@ class GitlabFogbugz
     branch = payload["ref"].split('/').last
     
     payload["commits"].each do |c|
-      process_commit(c["id"], c, repo, branch, payload['before'], config['fb_submit_url'], config['curl'])
+      process_commit(c["id"], c, repo, branch, payload['before'])
     end
     
     rescue
@@ -207,16 +204,14 @@ class GitlabFogbugz
       raise
   end
 
-  def submit_to_fogbugz(sha1, commit, token, curl_path)
+  def submit_to_fogbugz(sha1, commit, api)
     listener = FogbugzListener.new(:commit_url => commit["url"], :message => commit["message"], :sha1 => sha1)
     MessageParser.parse(commit["message"], listener)
-    service = FogbugzService.new(config["fb_main_url"], curl_path, token)
-    service.connect do
-      listener.update_fogbugz(service)
-    end
+    service = FogbugzService.new(api)
+    listener.update_fogbugz(service)
   end
 
-  def process_commit(sha1, commit, repo, branch, before, fb_submit_url, curl_path)
+  def process_commit(sha1, commit, repo, branch, before)
     
     # from each commit in the payload, we need to extract:
     # - name of repo, renamed as "gitlab-<repo>"
@@ -229,7 +224,10 @@ class GitlabFogbugz
     author = commit["author"]["email"]
 
     token = tokens[author]
-    submit_to_fogbugz(sha1, commit, token, curl_path) if token
+    raise Exception, "No token available for email '#{author}'" if !token
+    api = Fogbugz::Interface.new(:uri => config["fb_main_url"], :token => token)
+
+    submit_to_fogbugz(sha1, commit, api)
 
     files = commit["removed"] | commit["added"] | commit["modified"]
     files = [] if !files
@@ -247,15 +245,12 @@ class GitlabFogbugz
     # when fogbugz asks for the scm viewer url.
     bug_list.each do |fb_bugzid|
       files.each do |f|
-        fb_repo = CGI.escape("gitlab-#{repo}")
-        fb_r1 = CGI.escape("#{before}")
-        fb_r2 = CGI.escape("#{sha1}")
-        fb_file = CGI.escape("#{branch}/#{f}")
-        
-        #build the GET request, and send it to fogbugz
-        fb_url = "#{fb_submit_url}?ixBug=#{fb_bugzid}&sRepo=#{fb_repo}&sFile=#{fb_file}&sPrev=#{fb_r1}&sNew=#{fb_r2}"
-        puts `#{curl_path} --insecure --silent --output /dev/null '#{fb_url}'`
-
+        # TODO: this is untested code and probably misses the ixRepository
+          # parameter; but since gitlab doesn't expose the filenames yet (as of
+          # 2.6), can't test
+        api.command(:newCheckin, {"ixBug" => fb_bugzid, "sRepo" =>
+                    "gitlab-#{repo}", "sFile" => "#{branch}/#{f}", "sPrev" =>
+                    before, "sNew" => sha1} )
       end
     end
   end
