@@ -126,7 +126,7 @@ get "/authenticated" do
         <li><tt>implements</tt></li>
         <li><tt>reopens</tt></li>
         <li><tt>references</tt> or <tt>refs</tt><br>Does not change the state of the case, just adds the commit message to this case.</li>
-        <li><tt>resolves</tt><br>Resolves is different then <tt>closes</tt>, <tt>completes</tt>, <tt>fixes</tt> and <tt>implements</tt>: it does not explicitly sets the FogBugz case status, thus changes the case to it's categories default status for resolved cases: Bug -&gt; "fixed", Feature -&gt; "Implemented", Inquirt -&gt; "Responded" and Schedule Item -&gt; "Completed"</li>
+        <li><tt>resolves</tt><br>Resolves is different then <tt>closes</tt>, <tt>completes</tt>, <tt>fixes</tt> and <tt>implements</tt>: it does not explicitly sets the FogBugz case status, thus changes the case to it's categories default status for resolved cases: Bug -&gt; "fixed", Feature -&gt; "Implemented", Inquiry -&gt; "Responded" and Schedule Item -&gt; "Completed"</li>
     </ul>
     <p>NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
     <p>Back to <a href="/tokens">Authenticated users</a></p>
