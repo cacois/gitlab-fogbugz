@@ -4,7 +4,7 @@ require "rake/testtask"
 require "rake/gempackagetask"
 
 GEM = "gitlab-fogbugz"
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 AUTHOR = ["John Reilly", "François Beausoleil", "Markus Fischer"]
 EMAIL = ["jr@trms.com", "francois@teksol.info", "markus@fischer.name"]
 HOMEPAGE = "http://github.com/mfn/gitlab-fogbugz"
@@ -32,7 +32,7 @@ spec = Gem::Specification.new do |s|
   s.require_path = "lib"
 
   # Must reference lib/message_parser.rb explicitely, or it won't be automatically generated
-  s.files = %w(LICENSE README.markdown Rakefile TODO lib/message_parser.rb) + Dir.glob("{lib,test,config,samples,bin}/**/*")
+  s.files = %w(HISTORY.md LICENSE README.markdown Rakefile TODO lib/message_parser.rb) + Dir.glob("{lib,test,config,samples,bin}/**/*")
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
