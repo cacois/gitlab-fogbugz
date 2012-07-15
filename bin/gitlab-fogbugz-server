@@ -7,6 +7,7 @@ require 'yaml'
 require 'cgi'
 require 'fileutils'
 require 'fogbugz'
+require 'slop'
 
 $: << File.dirname(__FILE__) + "/../lib"
 require 'fogbugz_service'
@@ -61,7 +62,7 @@ end
 #                 about all of your developers.  Each dev must
 #                 authenticate once with this app, then the token
 #                 is kept on the filesystem.
-class GitlabFogbugzServer < Sinatra::Base
+class GitlabFogbugzServer < Sinatra::Application
 
   ##
   # GitLab should send its post-receive hook here.
@@ -259,4 +260,24 @@ class GitlabFogbugz
   end
 end
 
+bind ='0.0.0.0'
+port = 4568
+env = "production"
+begin
+  opts = Slop.new({:help => true}) do
+    banner "#{$0} [options]"
+    on(:bind=, "IP address to bind to (defaults to #{bind})") { |v| bind = v }
+    on(:e=, "Environment: production, development or test") { |v| env = v }
+    on(:p=, :port=, "Port to bind to (defaults to #{port})") { |v| port = v }
+  end
+  opts.parse
+  exit if opts[:help]
+rescue Slop::MissingArgumentError => e
+  STDERR.puts "ERROR: #{e.message}", opts
+  exit 1
+end
+
+GitlabFogbugzServer.bind = bind
+GitlabFogbugzServer.port = port
+GitlabFogbugzServer.environment = env
 GitlabFogbugzServer.run!
