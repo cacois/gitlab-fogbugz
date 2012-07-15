@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+# vim: filetype=ruby:
 require 'rubygems'
 require 'json'
-require 'sinatra'
+require 'sinatra/base'
 require 'yaml'
 require 'cgi'
 require 'fileutils'
@@ -60,128 +61,130 @@ end
 #                 about all of your developers.  Each dev must
 #                 authenticate once with this app, then the token
 #                 is kept on the filesystem.
+class GitlabFogbugzServer < Sinatra::Base
 
-##
-# GitLab should send its post-receive hook here.
-post '/' do
-  request.body.rewind
-  GitlabFogbugz.new(request.body.read)
-end
-
-AUTH_FORM = lambda {|fb_url, params|
-  <<-EOHTML
-<h1>FogBugz Authentication</h1>
-<p>This form will authenticate you to <strong>#{fb_url}</strong></p>
-<form method="post" action="/authenticate">
-  <p><label for="email">Email:</label><br/>
-  <input name="email" size="40" value="#{params['email']}"/></p>
-  <p><label for="password">Password:</label><br/>
-  <input type="password" name="password" size="20"/></p>
-  <p><input type="submit" value="Authenticate to FogBugz"/></p>
-</form>
-EOHTML
-}
-
-get "/login" do
-  if fb_main_url = config['fb_main_url'] then
-    AUTH_FORM.call(fb_main_url, Hash.new)
-  else
-    "<h1>A configuration error exists</h1><p>Ooops, the configuration file does not exist at path: <strong><tt>#{config_path}</tt></strong>.</p>"
+  ##
+  # GitLab should send its post-receive hook here.
+  post '/' do
+    request.body.rewind
+    GitlabFogbugz.new(request.body.read)
   end
-end
 
-post "/authenticate" do
-  begin
-    api = Fogbugz::Interface.new(:email => params["email"], :password => params["password"], :uri => config["fb_main_url"])
-    tokens[ params["email"] ] = api.authenticate
+  AUTH_FORM = lambda {|fb_url, params|
+    <<-EOHTML
+  <h1>FogBugz Authentication</h1>
+  <p>This form will authenticate you to <strong>#{fb_url}</strong></p>
+  <form method="post" action="/authenticate">
+    <p><label for="email">Email:</label><br/>
+    <input name="email" size="40" value="#{params['email']}"/></p>
+    <p><label for="password">Password:</label><br/>
+    <input type="password" name="password" size="20"/></p>
+    <p><input type="submit" value="Authenticate to FogBugz"/></p>
+  </form>
+  EOHTML
+  }
+
+  get "/login" do
+    if fb_main_url = config['fb_main_url'] then
+      AUTH_FORM.call(fb_main_url, Hash.new)
+    else
+      "<h1>A configuration error exists</h1><p>Ooops, the configuration file does not exist at path: <strong><tt>#{config_path}</tt></strong>.</p>"
+    end
+  end
+
+  post "/authenticate" do
+    begin
+      api = Fogbugz::Interface.new(:email => params["email"], :password => params["password"], :uri => config["fb_main_url"])
+      tokens[ params["email"] ] = api.authenticate
+      write_tokens
+      redirect "/authenticated"
+    rescue Fogbugz::AuthenticationException
+      "<p>Failed authentication: <strong>#{$!.message}</strong></p>" + AUTH_FORM.call(config['fb_main_url'], params)
+    end
+  end
+
+  get "/authenticated" do
+    <<-HTML
+      <h1>Authenticated</h1>
+      <p>You are now authenticated to FogBugz.  Go forth and commit!</p>
+      
+      <h2>Writing commit messages</h2>
+      <p>Your commit messages can now contain text like the following to automatically manage your cases:</p>
+      <blockquote>
+        <p>Implemented foo, corrected baz.</p>
+        <p>Implements #1234, references #2345.  Closes #1234.</p>
+      </blockquote>
+      <p>This would automatically add the commit message to cases #1234 <em>and</em> #2345.  The commit message will be appended as an event to the case.  In addition, case #1234 will be closed.</p>
+      <p>You can also mention multiple cases with one keyword, e.g. <tt>Implements #1234 and #5123</tt>.</p>
+      <p>GitlabFogbugz recognizes the following keywords (also singular versions of the same keywords):</p>
+      <ul>
+          <li><tt>bugzid:</tt><br>For "compatibility" with the subversion wrapper provided by Fogcreek; however you still need to prefix the case number with <tt>#</tt>. Works like <tt>references</tt>.</li>
+          <li><tt>closes</tt></li>
+          <li><tt>completes</tt></li>
+          <li><tt>fixes</tt></li>
+          <li><tt>implements</tt></li>
+          <li><tt>reopens</tt></li>
+          <li><tt>references</tt> or <tt>refs</tt><br>Does not change the state of the case, just adds the commit message to this case.</li>
+          <li><tt>resolves</tt><br>Resolves is different then <tt>closes</tt>, <tt>completes</tt>, <tt>fixes</tt> and <tt>implements</tt>: it does not explicitly sets the FogBugz case status, thus changes the case to it's categories default status for resolved cases: Bug -&gt; "fixed", Feature -&gt; "Implemented", Inquiry -&gt; "Responded" and Schedule Item -&gt; "Completed"</li>
+      </ul>
+      <p>NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
+      <p>Back to <a href="/tokens">Authenticated users</a></p>
+    HTML
+  end
+
+  get "/tokens" do
+    response = []
+    response << "<h1>List of authenticated users</h1>"
+    response << "<ul>"
+    tokens.map do |email, token|
+      response << "<li>#{email}"
+      response << %Q(<form method="post" action="/remove"><input type="hidden" name="email" value="#{email}"/><input type="submit" value="Remove"/></form>)
+      response << "</li>"
+    end
+
+    response << "</ul>"
+    response << %Q(<p><a href="/login">Add a user</a></p>)
+    response.join("\n")
+  end
+
+  post "/remove" do
+    redirect "/tokens" unless params["email"]
+    tokens.delete(params["email"])
     write_tokens
-    redirect "/authenticated"
-  rescue Fogbugz::AuthenticationException
-    "<p>Failed authentication: <strong>#{$!.message}</strong></p>" + AUTH_FORM.call(config['fb_main_url'], params)
+    redirect "/tokens"
   end
-end
 
-get "/authenticated" do
-  <<-HTML
-    <h1>Authenticated</h1>
-    <p>You are now authenticated to FogBugz.  Go forth and commit!</p>
+  ## 
+  # Set the log and diff urls (in fogbugz's site settings) to point here.
+  # Log url:  http://localhost:4567/repo_url?type=log&repo=^REPO&file=^FILE&r1=^R1&r2=^R2
+  # Diff url: http://localhost:4567/repo_url?type=diff&repo=^REPO&file=^FILE&r1=^R1&r2=^R2
+  get '/repo_url' do
+    #pull out the repo's scm viewer url from the config file
+    if params[:type] == 'log'
+      url = config['repos'][params[:repo]]['log_url']
+    elsif params[:type] == 'diff'
+      url = config['repos'][params[:repo]]['diff_url']
+    else
+      "Unknown repo viewer type."
+    end
     
-    <h2>Writing commit messages</h2>
-    <p>Your commit messages can now contain text like the following to automatically manage your cases:</p>
-    <blockquote>
-      <p>Implemented foo, corrected baz.</p>
-      <p>Implements #1234, references #2345.  Closes #1234.</p>
-    </blockquote>
-    <p>This would automatically add the commit message to cases #1234 <em>and</em> #2345.  The commit message will be appended as an event to the case.  In addition, case #1234 will be closed.</p>
-    <p>You can also mention multiple cases with one keyword, e.g. <tt>Implements #1234 and #5123</tt>.</p>
-    <p>GitlabFogbugz recognizes the following keywords (also singular versions of the same keywords):</p>
-    <ul>
-        <li><tt>bugzid:</tt><br>For "compatibility" with the subversion wrapper provided by Fogcreek; however you still need to prefix the case number with <tt>#</tt>. Works like <tt>references</tt>.</li>
-        <li><tt>closes</tt></li>
-        <li><tt>completes</tt></li>
-        <li><tt>fixes</tt></li>
-        <li><tt>implements</tt></li>
-        <li><tt>reopens</tt></li>
-        <li><tt>references</tt> or <tt>refs</tt><br>Does not change the state of the case, just adds the commit message to this case.</li>
-        <li><tt>resolves</tt><br>Resolves is different then <tt>closes</tt>, <tt>completes</tt>, <tt>fixes</tt> and <tt>implements</tt>: it does not explicitly sets the FogBugz case status, thus changes the case to it's categories default status for resolved cases: Bug -&gt; "fixed", Feature -&gt; "Implemented", Inquiry -&gt; "Responded" and Schedule Item -&gt; "Completed"</li>
-    </ul>
-    <p>NOTE:  FogBugz does not allow closing a case that isn't resolved, so you really must use "Implements X, closes X", or else it won't work.</p>
-    <p>Back to <a href="/tokens">Authenticated users</a></p>
-  HTML
-end
-
-get "/tokens" do
-  response = []
-  response << "<h1>List of authenticated users</h1>"
-  response << "<ul>"
-  tokens.map do |email, token|
-    response << "<li>#{email}"
-    response << %Q(<form method="post" action="/remove"><input type="hidden" name="email" value="#{email}"/><input type="submit" value="Remove"/></form>)
-    response << "</li>"
+    if url
+      url.gsub!(/\^REPO/, params[:repo])
+      url.gsub!(/\^FILE/, params[:file])
+      url.gsub!(/\^R1/, params[:r1])
+      url.gsub!(/\^R2/, params[:r2])
+      redirect url
+    end
+      
   end
 
-  response << "</ul>"
-  response << %Q(<p><a href="/login">Add a user</a></p>)
-  response.join("\n")
-end
-
-post "/remove" do
-  redirect "/tokens" unless params["email"]
-  tokens.delete(params["email"])
-  write_tokens
-  redirect "/tokens"
-end
-
-## 
-# Set the log and diff urls (in fogbugz's site settings) to point here.
-# Log url:  http://localhost:4567/repo_url?type=log&repo=^REPO&file=^FILE&r1=^R1&r2=^R2
-# Diff url: http://localhost:4567/repo_url?type=diff&repo=^REPO&file=^FILE&r1=^R1&r2=^R2
-get '/repo_url' do
-  #pull out the repo's scm viewer url from the config file
-  if params[:type] == 'log'
-    url = config['repos'][params[:repo]]['log_url']
-  elsif params[:type] == 'diff'
-    url = config['repos'][params[:repo]]['diff_url']
-  else
-    "Unknown repo viewer type."
+  error do
+    err = request.env['sinatra.error']
+    puts "Error handling request: #{err.name}"
+    puts err.backtrace.join("\n")
   end
-  
-  if url
-    url.gsub!(/\^REPO/, params[:repo])
-    url.gsub!(/\^FILE/, params[:file])
-    url.gsub!(/\^R1/, params[:r1])
-    url.gsub!(/\^R2/, params[:r2])
-    redirect url
-  end
-    
-end
 
-error do
-  err = request.env['sinatra.error']
-  puts "Error handling request: #{err.name}"
-  puts err.backtrace.join("\n")
 end
-
 
 ##
 # This class does all of the json parsing and submits a push's commits to fogbugz
@@ -255,3 +258,5 @@ class GitlabFogbugz
     end
   end
 end
+
+GitlabFogbugzServer.run!
