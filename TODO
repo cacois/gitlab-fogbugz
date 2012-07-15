@@ -1,3 +1,6 @@
-TODO:
-- Implement FogBugz checkins once GitLab provides this feature
+# TODO:
+* Implement FogBugz checkins once GitLab provides this feature
   (see https://github.com/gitlabhq/gitlabhq/issues/747 )
+* After switching to Sinatra::Base, automagically --help and e.g. setting port
+  from sinatra isn't available anymore. Provide some alternative or do in a
+  smarter way.

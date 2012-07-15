@@ -1,5 +1,6 @@
 GitLab + Fogbugz
 ===
+(forked and adapted from [github-fogbugz](https://github.com/johnreilly/github-fogbugz/))
 
 This is a simple sinatra application that has three responsibilities:
 
