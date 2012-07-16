@@ -4,7 +4,7 @@ require "rake/testtask"
 require "rake/gempackagetask"
 
 GEM = "gitlab-fogbugz"
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 AUTHOR = ["John Reilly", "François Beausoleil", "Markus Fischer"]
 EMAIL = ["jr@trms.com", "francois@teksol.info", "markus@fischer.name"]
 HOMEPAGE = "http://github.com/mfn/gitlab-fogbugz"

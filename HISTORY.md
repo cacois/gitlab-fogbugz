@@ -1,3 +1,6 @@
+# 0.0.4 / 2012-07-16
+* Use separate CLI options due Sinatra refactoring
+
 # 0.0.3 / 2012-07-15
 * Make gitlab-fogbugz-server actually work when installed as gem
 * Fix tests in Ruby 1.9.2 (did work in 1.8 and 1.9.3)
