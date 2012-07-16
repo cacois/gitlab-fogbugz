@@ -4,7 +4,7 @@ require "rake/testtask"
 require "rake/gempackagetask"
 
 GEM = "gitlab-fogbugz"
-VERSION = "0.0.4"
+VERSION = "0.0.5"
 AUTHOR = ["John Reilly", "François Beausoleil", "Markus Fischer"]
 EMAIL = ["jr@trms.com", "francois@teksol.info", "markus@fischer.name"]
 HOMEPAGE = "http://github.com/mfn/gitlab-fogbugz"
@@ -27,6 +27,7 @@ spec = Gem::Specification.new do |s|
   s.add_dependency "sinatra", "~> 1.3.2"
   s.add_dependency "json", "~> 1.7.3"
   s.add_dependency "ruby-fogbugz", "~> 0.1.1"
+  s.add_dependency "slop", "~> 3.3.2"
   s.add_development_dependency "mocha"
   
   s.require_path = "lib"

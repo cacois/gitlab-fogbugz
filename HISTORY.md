@@ -1,3 +1,6 @@
+# 0.0.5 / 2012-07-16
+* Fix depdency on slop in gemspec
+
 # 0.0.4 / 2012-07-16
 * Use separate CLI options due Sinatra refactoring
 
